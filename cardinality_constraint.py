@@ -1,3 +1,5 @@
+import pprint
+
 from pysat.formula import CNF
 
 
@@ -31,7 +33,7 @@ def cardinality_constraint_ALK(vars, k, counter):
         for s in range(2, min(j, k) + 1):
             cnf.append([-vars[j - 1], -temp_var_table[j - 1][s - 1], temp_var_table[j][s]])
 
-    for j in range(1, k + 1):
+    for j in range(1, min(k, N) + 1):
         cnf.append([vars[j - 1], -temp_var_table[j][j]])
 
     for j in range(2, N + 1):
@@ -42,7 +44,7 @@ def cardinality_constraint_ALK(vars, k, counter):
         for s in range(1, min(j - 1, k) + 1):
             cnf.append([vars[j - 1], temp_var_table[j - 1][s], -temp_var_table[j][s]])
 
-    cnf.append([temp_var_table[N][k]])
+    cnf.append([temp_var_table[N][min(N, k)]])
 
     return (cnf, temp_var_table)
 
@@ -66,7 +68,7 @@ def cardinality_constraint_AMK(vars, k, counter):
         for s in range(2, min(j, k) + 1):
             cnf.append([-vars[j - 1], -temp_var_table[j - 1][s - 1], temp_var_table[j][s]])
 
-    for j in range(1, k + 1):
+    for j in range(1, min(k, N) + 1):
         cnf.append([vars[j - 1], -temp_var_table[j][j]])
 
     for j in range(2, N):
@@ -93,9 +95,6 @@ def _test_cardinality_constraint():
     def check_cardinality_constraint(var, k, mode):
         counter = Counter(start=len(var))
         cnf, _ = cardinality_constraint(var, k, counter, mode)
-        # print(cnf.clauses)
-        # for r in temp:
-        #     print(r)
         with Solver() as solver:
             solver.append_formula(cnf)
             solver.solve()

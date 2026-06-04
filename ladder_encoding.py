@@ -8,12 +8,6 @@ def join_blocks_AMK(blocks, n, k):
         block_a = blocks[i]
         block_b = blocks[i + 1]
 
-        # for i in block_a:
-        #     print(i)
-        # print()
-        # for i in block_b:
-        #     print(i)
-
         # (8) of section 3.3
         for j in range(
             2, min(n, len(block_b)) + 1
@@ -23,7 +17,6 @@ def join_blocks_AMK(blocks, n, k):
                     break
                 if block_a[n - j + 1][k - p + 1] and block_b[j - 1][p]:
                     cnf.append([-block_a[n - j + 1][k - p + 1], -block_b[j - 1][p]])
-                    # print(f"{block_a[n - j + 1][k - p + 1]} -> {-block_b[j - 1][p]}")
     return cnf
 
 
@@ -38,9 +31,6 @@ def join_blocks_ALK(blocks, n, k):
             1, min(n, len(block_b)) + 1
         ):  # if block_b has less than n variables, run to n will Out of index
             for i in range(1, k + 1):
-                # exit if block_b is out of temp
-                if k - i + 1 >= len(block_b):
-                    break
                 if block_a[m][i] and block_b[min(len(block_b), n) - m][k - i + 1]:
                     cnf.append(
                         [block_a[m][i], block_b[min(len(block_b), n) - m][k - i + 1]]
@@ -62,9 +52,8 @@ def ladder_constraint(bool_vars, block_size, k, counter, mode):
         elif i + block_size >= n:
             block = bool_vars[i:n]
             constraint, temp_vars = cardinality_constraint(
-                block, min(k, len(block)), counter, mode
+                block, k, counter, mode
             )
-            # print(block)
             cnf.extend(constraint)
             blocks_temp_vars.append(temp_vars)
         else:
@@ -113,7 +102,7 @@ def _test_ladder_constraint():
                 if tested_case >= 10000:
                     break
 
-    var = [i for i in range(1, 8)]
+    var = [i for i in range(1, 11)]
     # check_ladder_constraint(var, 6, 4, "atmost")
     check_ladder_constraint(var, 4, 2, "atmost")
     # check_ladder_constraint(var, 4, 2, "exact")

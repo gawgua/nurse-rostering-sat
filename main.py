@@ -7,7 +7,7 @@
 from solve import NurseRosteringSolver
 
 if __name__ == "__main__":
-    NUM_NURSES = 1
+    NUM_NURSES = 5
     NUM_DAYS = 31
 
     MIN_SHIFT = 20
