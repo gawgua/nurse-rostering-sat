@@ -93,20 +93,11 @@ class NurseRosteringSolver:
                 bool_vars = [
                     self._get_nurse_day_var(nurse, day, "O") for day in range(self.num_days)
                 ]
-                # cnf.extend(
-                #     ladder_constraint(
-                #         bool_vars, self.min_shift_per, self.min_shift, self.counter, mode="atleast"
-                #     )
-                # )
-                for day in range(0, self.num_days - self.min_shift_per + 1):
-                    cnf.extend(
-                        cardinality_constraint(
-                            bool_vars[day : day + self.min_shift_per],
-                            self.min_shift_per - self.min_shift,
-                            self.counter,
-                            mode="atmost",
-                        )[0]
+                cnf.extend(
+                    ladder_constraint(
+                        bool_vars, self.min_shift_per, self.min_shift_per - self.min_shift, self.counter, mode="atmost"
                     )
+                )
 
             if 3 in constraints:
                 # constraint 3: at least k off days per n days (<= n-k work days per n days)
@@ -119,15 +110,6 @@ class NurseRosteringSolver:
                         bool_vars, self.off_day_per, self.off_day_per - self.off_day, self.counter, mode="atmost"
                     )
                 )
-                # for day in range(0, self.num_days - self.off_day_per + 1):
-                #     cnf.extend(
-                #         cardinality_constraint(
-                #             bool_vars[day : day + self.off_day_per],
-                #             self.off_day_per - self.off_day,
-                #             self.counter,
-                #             mode="atmost",
-                #         )[0]
-                #     )
 
             if 4 in constraints:
                 # constraint 4: at least k N shift per n days
@@ -162,15 +144,6 @@ class NurseRosteringSolver:
                         bool_vars, self.min_evening_shift_per, self.min_evening_shift_per - self.min_evening_shift, self.counter, mode="atmost"
                     )
                 )
-                # for day in range(0, self.num_days - self.min_evening_shift_per + 1):
-                #     cnf.extend(
-                #         cardinality_constraint(
-                #             bool_vars[day : day + self.min_evening_shift_per],
-                #             self.min_evening_shift_per - self.min_evening_shift,
-                #             self.counter,
-                #             mode="atmost",
-                #         )[0]
-                #     )
 
 
             if 7 in constraints:
@@ -221,25 +194,26 @@ class NurseRosteringSolver:
                     self._get_nurse_day_var(nurse, day, "N") for day in range(self.num_days)
                 ]
 
-                # bool_vars = []
-                # for day in range(self.num_days):
-                #     bool_vars.append(bool_vars_evening[day])
-                #     bool_vars.append(bool_vars_night[day])
+                bool_vars = []
+                for day in range(self.num_days):
+                    bool_vars.append(bool_vars_evening[day])
+                    bool_vars.append(bool_vars_night[day])
                 
-                # cnf.extend(
-                #     ladder_constraint(
-                #         bool_vars, self.max_evening_night_shift_per, self.max_evening_night_shift, self.counter, mode="atmost"
-                #     )
-                # )
-                for day in range(0, self.num_days - self.max_evening_night_shift_per + 1):
-                    cnf.extend(
-                        cardinality_constraint(
-                            bool_vars_evening[day : day + self.max_evening_night_shift_per] + bool_vars_night[day : day + self.max_evening_night_shift_per],
-                            self.max_evening_night_shift,
-                            self.counter,
-                            mode="atmost",
-                        )[0]
+                cnf.extend(
+                    ladder_constraint(
+                        bool_vars, self.max_evening_night_shift_per, self.max_evening_night_shift, self.counter, mode="atmost"
                     )
+                )
+
+                # for day in range(0, self.num_days - self.max_evening_night_shift_per + 1):
+                #     cnf.extend(
+                #         cardinality_constraint(
+                #             bool_vars_evening[day : day + self.max_evening_night_shift_per] + bool_vars_night[day : day + self.max_evening_night_shift_per],
+                #             self.max_evening_night_shift,
+                #             self.counter,
+                #             mode="atmost",
+                #         )[0]
+                #     )
 
             if 11 in constraints:
                 # constraint 11: at most k shift per n days (>= n-k off days per n days)
@@ -252,13 +226,10 @@ class NurseRosteringSolver:
                     )
                 )
 
-        # cnf
 
         return cnf
 
     def _test_constraints(self, model):
-        # print(model[:10])
-        # assert sum(1 for var in model[:10] if var > 0) <= 2
         for nurse in range(self.num_nurses):
             # constraint 1
             for day in range(self.num_days):
